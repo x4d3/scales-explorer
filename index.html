@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scales Explorer</title>
+    <link href="simple.css" rel="stylesheet" type="text/css">
+    <script src="vexflow-min.js"></script>
+    <script src="main.js"></script>
+    <style>
+        canvas {
+            background: #eed;
+            padding: 10px;
+            border: 10px solid #ddc;
+            cursor: pointer;
+            width: 100%;
+        }
+        select {
+            width: 150px;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const canvas = document.getElementById('main');
+            const scalesSelector = document.getElementById('scalesSelector');
+            const description = document.getElementById('description');
+
+            const explorer = new Explorer(originalCanvas, transposedCanvas, originalKeySelector, transposedKeySelector, originalKey, transposedKey);
+            document.onkeydown = function (e) {
+                switch (e.key) {
+                    case "ArrowUp":
+                        e.preventDefault(); // prevent the default action (scroll / move caret)
+                        explorer.updateKeyIndex(1);
+                        break;
+                    case "ArrowDown":
+                        e.preventDefault(); // prevent the default action (scroll / move caret)
+                        explorer.updateKeyIndex(-1);
+                        break;
+                    default:
+                        return; // exit this handler for other keys
+                }
+            };
+        });
+    </script>
+</head>
+<body>
+<header>
+    <h1>The Transposer</h1>
+</header>
+<main>
+    <select id="scalesSelector"></select>
+    <canvas id="main" width="600" height="120"></canvas>
+    <p id="description"></p>
+
+</main>
+<footer>
+    <p>Made with ♥ by <a href="https://xade.eu">Xavier Delamotte</a> Using <a href="http://www.vexflow.com/">VexFlow</a>.</p>
+</footer>
+</body>
+</html>
