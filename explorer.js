@@ -1,4 +1,3 @@
-
 //Do re mi fa sol l si do
 
 const MAJOR_INTERVALS = [2, 2, 1, 2, 2, 2, 1];
@@ -40,7 +39,7 @@ const ALL_NOTES_ARRAY = Object.keys(ALL_NOTES);
 
 const ALL_KEYS = {
     "C": [],
-    "C#": ["F#" ,"C#", "G#", "D#", "A#", "E#", "B#"],
+    "C#": ["F#", "C#", "G#", "D#", "A#", "E#", "B#"],
     "Db": ["Bb", "Eb", "Ab", "Db", "Gb"],
     "D": ["F#", "C#"],
     "Eb": ["Bb", "Eb", "Ab"],
@@ -55,7 +54,6 @@ const ALL_KEYS = {
     "B": ["F#", "C#", "G#", "D#", "A#"],
     "Cb": ["Bb", "Eb", "Ab", "Db", "Gb", "Cb", "Fb"]
 }
-
 
 
 const getMessage = diff => {
@@ -88,12 +86,10 @@ export class Explorer {
             this.updateIndex(y < canvas.height / 2 ? 1 : -1)
         }, false);
 
-
         fillSelector(this.scalesSelector, Object.keys(SCALES));
-        const refreshProxy = () => {
+        scalesSelector.onchange = () => {
             this.refresh();
         };
-        scalesSelector.onchange = refreshProxy;
         this.refresh();
     }
 
@@ -107,10 +103,6 @@ export class Explorer {
         drawScaleOnCanva(this.canvas, SCALES[scale].startKey, this.index);
     }
 }
-
-
-
-
 
 const mod = (input, n) => ((input % n) + n) % n;
 const safeArrayAccess = (array, index) => array[mod(index, array.length)];

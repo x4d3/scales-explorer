@@ -1,9 +1,16 @@
 import {Explorer} from './explorer.js';
 
 document.addEventListener('DOMContentLoaded', function () {
-    const canvas = document.getElementById('main');
-    const scalesSelector = document.getElementById('scalesSelector');
-    const description = document.getElementById('description');
+    const app = document.getElementById("app");
+
+    const scalesSelector = document.createElement("select")
+    const canvas = document.createElement("canvas");
+    canvas.width = 600;
+    canvas.height = 120;
+    const description = document.createElement('div');
+    app.appendChild(scalesSelector);
+    app.appendChild(canvas);
+    app.appendChild(description);
 
     const explorer = new Explorer(canvas, scalesSelector, description);
     document.onkeydown = function (e) {
