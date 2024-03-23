@@ -11,8 +11,8 @@ const SCALES = {
     },
     "Minor": {
         intervals: MINOR_INTERVALS,
-        startNote: "A",
-        startKey: "A"
+        startNote: "C",
+        startKey: "Eb"
     },
     "Dorian": {
         intervals: MAJOR_INTERVALS,
@@ -21,50 +21,23 @@ const SCALES = {
     }
 };
 
-const ALL_NOTES = {
-    'C': {root_index: 0, int_val: 0},
-    'C#': {root_index: 1, int_val: 1},
-    'D': {root_index: 1, int_val: 2},
-    'D#': {root_index: 2, int_val: 3},
-    'E': {root_index: 2, int_val: 4},
-    'F': {root_index: 3, int_val: 5},
-    'F#': {root_index: 3, int_val: 6},
-    'G': {root_index: 4, int_val: 7},
-    'G#': {root_index: 5, int_val: 8},
-    'A': {root_index: 5, int_val: 9},
-    'A#': {root_index: 6, int_val: 10},
-    'B': {root_index: 6, int_val: 11},
-};
-const ALL_NOTES_ARRAY = Object.keys(ALL_NOTES);
-
 const ALL_KEYS = {
-    "C": [],
-    "C#": ["F#", "C#", "G#", "D#", "A#", "E#", "B#"],
-    "Db": ["Bb", "Eb", "Ab", "Db", "Gb"],
-    "D": ["F#", "C#"],
-    "Eb": ["Bb", "Eb", "Ab"],
-    "E": ["F#", "C#", "G#", "D#"],
-    "F": ["Bb"],
-    "F#": ["F#", "C#", "G#", "D#", "A#", "E#"],
-    "Gb": ["Bb", "Eb", "Ab", "Db", "Gb", "Cb"],
-    "G": ["F#"],
-    "Ab": ["Bb", "Eb", "Ab", "Db"],
-    "A": ["F#", "C#", "G#"],
-    "Bb": ["Bb", "Eb"],
-    "B": ["F#", "C#", "G#", "D#", "A#"],
-    "Cb": ["Bb", "Eb", "Ab", "Db", "Gb", "Cb", "Fb"]
-}
-
-
-const getMessage = diff => {
-    if (diff > 0) {
-        return " Interval up " + safeArrayAccess(DIATONIC_ACCIDENTALS, diff);
-    } else if (diff == 0) {
-        return "";
-    } else {
-        return " Interval down " + safeArrayAccess(DIATONIC_ACCIDENTALS, -diff);
-    }
+    'C': {root_index: 0, int_val: 0, accidentals: []},
+    'Db': {root_index: 1, int_val: 1, accidentals: ["Bb", "Eb", "Ab", "Db", "Gb"]},
+    'D': {root_index: 1, int_val: 2, accidentals: ["F#", "C#"]},
+    'Eb': {root_index: 2, int_val: 3, accidentals: ["Bb", "Eb", "Ab"]},
+    'E': {root_index: 2, int_val: 4, accidentals: ["F#", "C#", "G#"]},
+    'F': {root_index: 3, int_val: 5, accidentals: ["Bb"]},
+    'F#': {root_index: 3, int_val: 6, accidentals: ["F#", "C#", "G#", "D#", "A#", "E#"]},
+    'G': {root_index: 4, int_val: 7, accidentals: ["F#"]},
+    'Ab': {root_index: 5, int_val: 8, accidentals: ["Bb", "Eb", "Ab", "Db"]},
+    'A': {root_index: 5, int_val: 9, accidentals: ["F#", "C#", "G#"]},
+    'Bb': {root_index: 6, int_val: 10, accidentals: ["Bb", "Eb"]},
+    'B': {root_index: 6, int_val: 11, accidentals: ["F#", "C#", "G#", "D#", "A#"]},
 };
+
+const ALL_KEYS_ARRAY = Object.keys(ALL_KEYS);
+
 const fillSelector = function (selector, elements) {
     elements.forEach((item) => {
         const option = document.createElement("option")
@@ -75,53 +48,73 @@ const fillSelector = function (selector, elements) {
 };
 
 export class Explorer {
-    constructor(canvas, scalesSelector, description) {
+    constructor(canvas, scalesSelector, description, scale, index) {
         this.canvas = canvas;
-        this.scalesSelector = scalesSelector;
         this.description = description;
-        this.index = 0;
-
+        this.index = index;
+        this.scale = scale;
+        this.changeParamsListeners = [];
         canvas.addEventListener('click', event => {
             const y = event.pageY - canvas.offsetTop;
             this.updateIndex(y < canvas.height / 2 ? 1 : -1)
         }, false);
 
-        fillSelector(this.scalesSelector, Object.keys(SCALES));
+        fillSelector(scalesSelector, Object.keys(SCALES));
         scalesSelector.onchange = () => {
-            this.refresh();
+            this.scale = scalesSelector.value;
+            this.fireParamChanged();
         };
+        scalesSelector.value = scale;
         this.refresh();
     }
 
     updateIndex(increment) {
         this.index += increment;
-        this.refresh();
+        this.fireParamChanged();
+
+    }
+
+    onParamsChange(listener) {
+        this.changeParamsListeners.push(listener);
     }
 
     refresh() {
-        const scale = this.scalesSelector.value;
-        drawScaleOnCanva(this.canvas, SCALES[scale].startKey, this.index);
+        const {index, scale} = this;
+        const {startNote, intervals, startKey} = SCALES[scale];
+        console.log("startNote", startNote, "intervals", intervals, "startKey", startKey);
+
+        const key = getKey(ALL_KEYS[startKey].int_val + index);
+        const note = safeArrayAccess(ALL_KEYS_ARRAY, index + ALL_KEYS[startNote].root_index)
+        const noteIndex = ALL_KEYS[note].root_index;
+
+        drawScaleOnCanva(this.canvas, key, noteIndex, intervals);
+        this.description.innerHTML = `${note} ${scale}`;
+    }
+
+    fireParamChanged() {
+        const {index, scale} = this;
+        this.refresh();
+        this.changeParamsListeners.forEach(listener => listener(index, scale));
     }
 }
 
 const mod = (input, n) => ((input % n) + n) % n;
 const safeArrayAccess = (array, index) => array[mod(index, array.length)];
 
-const getNote = index => safeArrayAccess(ALL_NOTES_ARRAY, index);
+const getKey = index => safeArrayAccess(ALL_KEYS_ARRAY, index);
 
-const drawScaleOnCanva = (canvas, keySignature, startingNoteIndex) => {
+const drawScaleOnCanva = (canvas, key, noteIndex, intervals) => {
     const renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
     const ctx = renderer.getContext();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const stave = new Vex.Flow.Stave(10, 0, canvas.width - 20);
-    stave.addClef("treble").addKeySignature(keySignature).setContext(ctx).draw();
-    const notes = generatesScale(startingNoteIndex);
+    stave.addClef("treble").addKeySignature(key).setContext(ctx).draw();
+    const notes = generatesScale(noteIndex);
     Vex.Flow.Formatter.FormatAndDraw(ctx, stave, notes);
 };
 
 const generatesScale = startingNoteIndex => {
     const notes = new Array(7);
-    startingNoteIndex = mod(startingNoteIndex + 3, 7) - 3;
     for (let i = 0; i < 8; i++) {
         const j = startingNoteIndex + i;
         const key = safeArrayAccess(Vex.Flow.Music.roots, j);
