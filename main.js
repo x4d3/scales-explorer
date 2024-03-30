@@ -175,42 +175,44 @@ class Explorer {
   }
 }
 
+const { Renderer, Stave, StaveNote, Accidental, Formatter } = Vex.Flow;
+
 const drawScaleOnCanva = (canvas, key, firstNote, intervals) => {
-  const renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
+  const renderer = new Renderer(canvas, Renderer.Backends.CANVAS);
   const ctx = renderer.getContext();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const stave = new Vex.Flow.Stave(10, 0, canvas.width - 20);
+  const stave = new Stave(10, 0, canvas.width - 20);
   stave.addClef("treble").addKeySignature(key).setContext(ctx).draw();
   const { accidentals } = ALL_KEYS[key];
 
   const notes = generatesScale(firstNote, intervals, accidentals);
-  Vex.Flow.Formatter.FormatAndDraw(ctx, stave, notes);
+  Formatter.FormatAndDraw(ctx, stave, notes);
 };
 
 const generatesScale = (note, intervals, accidentals) => {
   let scale = 3;
   const notes = [];
   for (let i = 0; i < 15; i++) {
-    const staveNote = new Vex.Flow.StaveNote({
-      keys: [`${note}/${scale}`],
+    const noteLetter = note.slice(0, 1);
+    const staveNote = new StaveNote({
+      keys: [`${noteLetter}/${scale}`],
       duration: "4d",
     });
     if (!accidentals.includes(note)) {
       if (note.slice(-2) === "##") {
-        staveNote.addAccidental(0, 1);
+        staveNote.addModifier(new Accidental("##"));
       } else if (note.slice(-1) === "#") {
-        staveNote.addAccidental(0, new Vex.Flow.Accidental("#"));
+        staveNote.addModifier(new Accidental("#"));
       } else if (note.slice(-2) === "bb") {
-        staveNote.addAccidental(0, new Vex.Flow.Accidental("bb"));
+        staveNote.addModifier(new Accidental("bb"));
       } else if (note.slice(-1) === "b") {
-        staveNote.addAccidental(0, new Vex.Flow.Accidental("b"));
+        staveNote.addModifier(new Accidental("b"));
       }
     }
     notes.push(staveNote);
 
     const interval = safeArrayAccess(intervals, i);
     const nextNote = NOTES_NEXT[note][interval - 1];
-    const noteLetter = note.slice(0, 1);
     const nextNoteLetter = nextNote.slice(0, 1);
     if ((noteLetter === "B" || noteLetter === "A") && (nextNoteLetter === "C" || nextNoteLetter === "D")) {
       scale++;
