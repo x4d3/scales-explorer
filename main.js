@@ -164,7 +164,7 @@ class Explorer {
     const { startNote, intervals, startKey } = SCALES[scale];
     const key = getKey(ALL_KEYS[startKey].int_val + index);
     const note = safeArrayAccess(ALL_KEYS_ARRAY, index + ALL_KEYS[startNote].root_index);
-    drawScaleOnCanva(this.canvas, key, note, intervals);
+    drawScale(this.canvas, key, note, intervals);
     this.description.innerHTML = `${note} ${scale}`;
   }
 
@@ -177,7 +177,7 @@ class Explorer {
 
 const { Renderer, Stave, StaveNote, Accidental, Formatter } = Vex.Flow;
 
-const drawScaleOnCanva = (canvas, key, firstNote, intervals) => {
+const drawScale = (canvas, key, firstNote, intervals) => {
   const renderer = new Renderer(canvas, Renderer.Backends.CANVAS);
   const ctx = renderer.getContext();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -189,7 +189,8 @@ const drawScaleOnCanva = (canvas, key, firstNote, intervals) => {
   Formatter.FormatAndDraw(ctx, stave, notes);
 };
 
-const generatesScale = (note, intervals, accidentals) => {
+const generatesScale = (firstNote, intervals, accidentals) => {
+  let note = firstNote;
   let scale = 3;
   const notes = [];
   for (let i = 0; i < 15; i++) {
