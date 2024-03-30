@@ -39,6 +39,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const MAJOR_INTERVALS = [2, 2, 1, 2, 2, 2, 1];
 const MINOR_INTERVALS = [2, 1, 2, 2, 1, 2, 2];
+
+const INTERVAL_TYPES = {
+  W: 2,
+  H: 1,
+};
+const parseInterval = (s) => {
+  return s.split("-").map((c) => INTERVAL_TYPES[c]);
+};
+
 const SCALES = {
   Major: {
     intervals: MAJOR_INTERVALS,
@@ -51,9 +60,16 @@ const SCALES = {
     startKey: "Eb",
   },
   Dorian: {
-    intervals: MAJOR_INTERVALS,
-    startNote: "G",
-    startKey: "F",
+    intervals: parseInterval("W-H-W-W-W-H-W"),
+    startNote: "D",
+    startKey: "C",
+    description:
+      "Commonly used in many famous tracks, it’s also a music mode popular in film scores, creating soundtracks that both sound massive and intriguing.",
+  },
+  Locrian: {
+    intervals: parseInterval("H-W-W-H-W-W-W"),
+    startNote: "B",
+    startKey: "C",
   },
 };
 
