@@ -1,22 +1,41 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scales</title>
-    <link href="simple.css" rel="stylesheet" type="text/css">
-    <link href="style.css" rel="stylesheet" type="text/css">
-    <script src="vexflow-min.js"></script>
-    <script type="module" src="main.js"></script>
-</head>
-<body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Scales Explorer</title>
+    <link href="simple.css" rel="stylesheet" type="text/css" />
+    <style>
+      :root {
+        --accent: rgb(47, 129, 247);
+        --accent-hover: rgb(73, 151, 255);
+      }
+
+      canvas {
+        background: #eed;
+        padding: 10px;
+        border: 10px solid #ddc;
+        cursor: pointer;
+        width: 100%;
+      }
+
+      select {
+        width: 100%;
+      }
+    </style>
+    <script src="vexflow@4.2.3.js"></script>
+    <script src="main.js"></script>
+  </head>
+  <body>
     <header>
-        <h1>Scales</h1>
+      <h1>Scales Explorer</h1>
     </header>
     <main id="app"></main>
     <footer>
-        <p>Made with ♥ by <a href="https://xade.eu">Xavier Delamotte</a>
-            Using <a href="http://www.vexflow.com/">VexFlow</a>.</p>
+      <p>
+        Made with ❤️ by <a href="https://xade.eu">Xavier Delamotte</a> Using
+        <a href="https://www.vexflow.com/">VexFlow</a>.
+      </p>
     </footer>
-</body>
+  </body>
 </html>
