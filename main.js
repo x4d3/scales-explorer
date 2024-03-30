@@ -2,9 +2,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const app = document.getElementById("app");
 
   const scalesSelector = document.createElement("select");
-  const canvas = document.createElement("canvas");
-  canvas.width = 600;
-  canvas.height = 150;
+  const canvas = document.createElement("div");
+  canvas.classList.add("music-sheet");
   const description = document.createElement("div");
   app.appendChild(scalesSelector);
   app.appendChild(canvas);
@@ -153,8 +152,9 @@ class Explorer {
     this.scale = scale;
     this.changeParamsListeners = [];
     canvas.addEventListener("click", (e) => {
-      const y = e.pageY - canvas.offsetTop;
-      this.updateIndex(y < canvas.height / 2 ? 1 : -1);
+      const rect = e.target.getBoundingClientRect();
+      const y = e.clientY - rect.top; //y position within the element.
+      this.updateIndex(y < rect.height / 2 ? 1 : -1);
     });
 
     fillSelector(scalesSelector, Object.keys(SCALES));
@@ -175,45 +175,53 @@ class Explorer {
     this.changeParamsListeners.push(listener);
   }
 
-  refresh() {
-    const { index, scale } = this;
-    const { startNote, intervals, startKey } = SCALES[scale];
-    const key = getKey(ALL_KEYS[startKey].int_val + index);
-    const note = safeArrayAccess(ALL_KEYS_ARRAY, index + ALL_KEYS[startNote].root_index);
-    drawScale(this.canvas, key, note, intervals);
-    this.description.innerHTML = `${note} ${scale}`;
-  }
-
   fireParamChanged() {
     const { index, scale } = this;
     this.refresh();
     this.changeParamsListeners.forEach((listener) => listener(index, scale));
   }
+
+  refresh = () => {
+    const { canvas, description, index, scale } = this;
+    const { startNote, intervals, startKey } = SCALES[scale];
+    const key = getKey(ALL_KEYS[startKey].int_val + index);
+    const firstNote = safeArrayAccess(ALL_KEYS_ARRAY, index + ALL_KEYS[startNote].int_val);
+
+    canvas.innerHTML = "";
+    const renderer = new Renderer(canvas, Renderer.Backends.SVG);
+    const context = renderer.getContext();
+    renderer.resize(800, 200);
+
+    const stave = new Stave(10, 40, 600);
+    stave.addClef("treble").addKeySignature(key).setContext(context).draw();
+    const { accidentals } = ALL_KEYS[key];
+    const octave = 3 + Math.floor(index / 12);
+    const notes = generatesScale(firstNote, intervals, accidentals, octave);
+
+    // Create a voice in 4/4 and add above notes
+    const voice = new Voice({ num_beats: notes.length, beat_value: 4 });
+    voice.addTickables(notes);
+
+    // Format and justify the notes to 400 pixels.
+    new Formatter().joinVoices([voice]).format([voice], 480);
+
+    // Render voice
+    voice.draw(context, stave);
+
+    description.innerHTML = `${firstNote} ${scale}`;
+  };
 }
 
-const { Renderer, Stave, StaveNote, Accidental, Formatter } = Vex.Flow;
+const { Renderer, Stave, StaveNote, Accidental, Formatter, Voice } = Vex.Flow;
 
-const drawScale = (canvas, key, firstNote, intervals) => {
-  const renderer = new Renderer(canvas, Renderer.Backends.CANVAS);
-  const ctx = renderer.getContext();
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const stave = new Stave(10, 0, canvas.width - 20);
-  stave.addClef("treble").addKeySignature(key).setContext(ctx).draw();
-  const { accidentals } = ALL_KEYS[key];
-
-  const notes = generatesScale(firstNote, intervals, accidentals);
-  Formatter.FormatAndDraw(ctx, stave, notes);
-};
-
-const generatesScale = (firstNote, intervals, accidentals) => {
+const generatesScale = (firstNote, intervals, accidentals, octave) => {
   let note = firstNote;
-  let scale = 3;
   const notes = [];
   for (let i = 0; i < 15; i++) {
     const noteLetter = note.slice(0, 1);
     const staveNote = new StaveNote({
-      keys: [`${noteLetter}/${scale}`],
-      duration: "4d",
+      keys: [`${noteLetter}/${octave}`],
+      duration: "q",
     });
     if (!accidentals.includes(note)) {
       if (note.slice(-2) === "##") {
@@ -232,7 +240,7 @@ const generatesScale = (firstNote, intervals, accidentals) => {
     const nextNote = NOTES_NEXT[note][interval - 1];
     const nextNoteLetter = nextNote.slice(0, 1);
     if ((noteLetter === "B" || noteLetter === "A") && (nextNoteLetter === "C" || nextNoteLetter === "D")) {
-      scale++;
+      octave++;
     }
     note = nextNote;
   }
