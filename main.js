@@ -1,18 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const app = document.getElementById("app");
-
-  const scalesSelector = document.createElement("select");
-  const canvas = document.createElement("div");
-  canvas.classList.add("music-sheet");
-  const description = document.createElement("div");
-  app.appendChild(scalesSelector);
-  app.appendChild(canvas);
-  app.appendChild(description);
+  const scalesSelector = document.getElementById("scales-selector");
+  const musicSheetDiv = document.getElementById("music-sheet");
+  const descriptionDiv = document.getElementById("description");
   const urlParams = new URLSearchParams(window.location.search);
   const index = parseIntOrDefault(urlParams.get("index"), 0);
-  const scale = urlParams.get("scale") || "Major";
+  const scale = urlParams.get("scale") || Object.keys(SCALES)[0];
 
-  const explorer = new Explorer(canvas, scalesSelector, description, scale, index);
+  const explorer = new Explorer(musicSheetDiv, scalesSelector, descriptionDiv, scale, index);
   document.onkeydown = function (e) {
     switch (e.key) {
       case "ArrowUp":
@@ -48,27 +42,57 @@ const parseInterval = (s) => {
 };
 
 const SCALES = {
-  Major: {
+  "Major Scale / Ionian mode": {
     intervals: MAJOR_INTERVALS,
     startNote: "C",
     startKey: "C",
+    description:
+      '<p>The <b>major scale</b> (or <a href="https://en.wikipedia.org/wiki/Ionian_mode" title="Ionian mode">Ionian mode</a>) is one of the most commonly used <a href="https://en.wikipedia.org/wiki/Scale_(music)" title="Scale (music)">musical scales</a>, especially in <a href="https://en.wikipedia.org/wiki/Western_culture#Music" title="Western culture">Western music</a>. It is one of the <a href="https://en.wikipedia.org/wiki/Diatonic_scale" title="Diatonic scale">diatonic scales</a>. Like many musical scales, it is made up of seven <a href="https://en.wikipedia.org/wiki/Musical_note" title="Musical note">notes</a>: the eighth duplicates the first at double its <a href="https://en.wikipedia.org/wiki/Frequency" title="Frequency">frequency</a> so that it is called a higher <a href="https://en.wikipedia.org/wiki/Octave" title="Octave">octave</a> of the same note (from Latin "octavus", the eighth).\n' +
+      "</p>",
   },
-  Minor: {
+  "Natural Minor / Aeolian mode": {
     intervals: MINOR_INTERVALS,
     startNote: "C",
     startKey: "Eb",
+    description:
+      "<p>\n" +
+      'The <b>Aeolian mode</b> is a <a href="/wiki/Mode_(music)" title="Mode (music)">musical mode</a> or, in modern usage, a <a href="/wiki/Diatonic_scale" title="Diatonic scale">diatonic scale</a> also called the <a href="/wiki/Natural_minor_scale" class="mw-redirect" title="Natural minor scale">natural minor scale</a>. On the white piano keys, it is the scale that starts with A. Its ascending <a href="/wiki/Musical_interval" class="mw-redirect" title="Musical interval">interval form</a> consists of a <i>key note, whole step, half step, whole step, whole step, half step, whole step, whole step.</i> That means that, in A aeolian (or A minor), you would play A, move up a whole step (two piano keys) to B, move up a half step (one piano key) to C, then up a whole step to D, a whole step to E, a half step to F, a whole step to G, and a final whole step to a high A.\n' +
+      "</p>",
   },
-  Dorian: {
+  "Dorian mode": {
     intervals: parseInterval("W-H-W-W-W-H-W"),
     startNote: "D",
     startKey: "C",
     description:
       "Commonly used in many famous tracks, it’s also a music mode popular in film scores, creating soundtracks that both sound massive and intriguing.",
   },
-  Locrian: {
+  "Phrygian mode": {
+    intervals: parseInterval("H-W-W-W-H-W-W"),
+    startNote: "E",
+    startKey: "C",
+    description:
+      "The Phrygian mode is a musical scale derived from the natural minor scale, with a lowered second scale degree. In terms of intervals, the Phrygian mode features a minor second (m2), minor third (m3), perfect fourth (P4), perfect fifth (P5), minor sixth (m6), and minor seventh (m7). Its characteristic lowered second degree (root, minor second) gives it a distinctively exotic and somewhat dissonant quality, making it a popular choice for creating tension and adding color in various musical compositions across genres.",
+  },
+  "Lydian mode": {
+    intervals: parseInterval("W-W-W-H-W-W-H"),
+    startNote: "F",
+    startKey: "C",
+    description:
+      "The Lydian mode is the fourth mode of the major scale. It’s a bright and happy mode that’s used in many famous songs.",
+  },
+  "Mixolydian mode": {
+    intervals: parseInterval("W-W-H-W-W-H-W"),
+    startNote: "G",
+    startKey: "C",
+    description:
+      "The Mixolydian mode is the fifth mode of the major scale, featuring a lowered seventh degree compared to the Ionian mode (W-W-H-W-W-H-W), resulting in a major sound with a bluesy and relaxed feel commonly heard in rock, blues, and jazz improvisation.",
+  },
+  "Locrian mode": {
     intervals: parseInterval("H-W-W-H-W-W-W"),
     startNote: "B",
     startKey: "C",
+    description:
+      "The Locrian mode is the seventh mode of the major scale, featuring a lowered second, third, fifth, sixth, and seventh degree compared to the Ionian mode (H-W-W-H-W-W-W), resulting in a highly dissonant and unstable sound rarely used in traditional tonal music but sometimes employed in avant-garde and experimental compositions for its tense and unresolved quality.",
   },
 };
 
@@ -137,7 +161,7 @@ const NOTES_NEXT = {
   "A##": ["C", "C#", "D"],
 
   Bbb: ["Bb", "B", "C"],
-  Bb: ["B", "C", "Db"],
+  Bb: ["Cb", "C", "Db"],
   B: ["C", "C#", "C##"],
   "B#": ["C#", "C##", "D#"],
 };
@@ -145,13 +169,13 @@ const NOTES_NEXT = {
 const ALL_KEYS_ARRAY = Object.keys(ALL_KEYS);
 
 class Explorer {
-  constructor(canvas, scalesSelector, description, scale, index) {
-    this.canvas = canvas;
-    this.description = description;
+  constructor(musicSheetDiv, scalesSelector, descriptionDiv, scale, index) {
+    this.musicSheetDiv = musicSheetDiv;
+    this.descriptionDiv = descriptionDiv;
     this.index = index;
     this.scale = scale;
     this.changeParamsListeners = [];
-    canvas.addEventListener("click", (e) => {
+    musicSheetDiv.addEventListener("click", (e) => {
       const rect = e.target.getBoundingClientRect();
       const y = e.clientY - rect.top; //y position within the element.
       this.updateIndex(y < rect.height / 2 ? 1 : -1);
@@ -182,23 +206,23 @@ class Explorer {
   }
 
   refresh = () => {
-    const { canvas, description, index, scale } = this;
-    const { startNote, intervals, startKey } = SCALES[scale];
-    const key = getKey(ALL_KEYS[startKey].int_val + index);
-    const firstNote = safeArrayAccess(ALL_KEYS_ARRAY, index + ALL_KEYS[startNote].int_val);
+    const { musicSheetDiv, descriptionDiv, index, scale } = this;
+    const { startNote, intervals, startKey, description } = SCALES[scale];
 
-    canvas.innerHTML = "";
-    const renderer = new Renderer(canvas, Renderer.Backends.SVG);
+    const relativeIndex = ALL_KEYS[startKey].int_val + index;
+    const key = getKey(relativeIndex);
+    const firstNote = safeArrayAccess(ALL_KEYS_ARRAY, relativeIndex);
+
+    musicSheetDiv.innerHTML = "";
+    const renderer = new Renderer(musicSheetDiv, Renderer.Backends.SVG);
     const context = renderer.getContext();
-    renderer.resize(800, 200);
-
-    const stave = new Stave(10, 40, 600);
+    renderer.resize(600, 200);
+    const stave = new Stave(10, 25, 600);
     stave.addClef("treble").addKeySignature(key).setContext(context).draw();
     const { accidentals } = ALL_KEYS[key];
-    const octave = 3 + Math.floor(index / 12);
+    const octave = 3 + Math.floor((index - ALL_KEYS[firstNote].int_val) / 12);
     const notes = generatesScale(firstNote, intervals, accidentals, octave);
 
-    // Create a voice in 4/4 and add above notes
     const voice = new Voice({ num_beats: notes.length, beat_value: 4 });
     voice.addTickables(notes);
 
@@ -208,7 +232,7 @@ class Explorer {
     // Render voice
     voice.draw(context, stave);
 
-    description.innerHTML = `${firstNote} ${scale}`;
+    descriptionDiv.innerHTML = `<p>${firstNote} ${scale}</p><p>${description}</p>`;
   };
 }
 

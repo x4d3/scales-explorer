@@ -17,6 +17,11 @@
         border: 10px solid #ddc;
         cursor: pointer;
         width: 100%;
+        max-height: 200px;
+      }
+
+      .music-sheet svg {
+        width: 100% !important;
       }
 
       select {
@@ -30,7 +35,11 @@
     <header>
       <h1>Scales Explorer</h1>
     </header>
-    <main id="app"></main>
+    <main>
+      <select id="scales-selector"></select>
+      <div class="music-sheet" id="music-sheet"></div>
+      <div id="description"></div>
+    </main>
     <footer>
       <p>
         Made with ❤️ by <a href="https://xade.eu">Xavier Delamotte</a> Using
