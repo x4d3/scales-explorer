@@ -34,6 +34,7 @@ const MAJOR_INTERVALS = [2, 2, 1, 2, 2, 2, 1];
 const MINOR_INTERVALS = [2, 1, 2, 2, 1, 2, 2];
 
 const INTERVAL_TYPES = {
+  A2: 3,
   W: 2,
   H: 1,
 };
@@ -56,7 +57,7 @@ const SCALES = {
     startKey: "Eb",
     description:
       "<p>\n" +
-      'The <b>Aeolian mode</b> is a <a href="/wiki/Mode_(music)" title="Mode (music)">musical mode</a> or, in modern usage, a <a href="/wiki/Diatonic_scale" title="Diatonic scale">diatonic scale</a> also called the <a href="/wiki/Natural_minor_scale" class="mw-redirect" title="Natural minor scale">natural minor scale</a>. On the white piano keys, it is the scale that starts with A. Its ascending <a href="/wiki/Musical_interval" class="mw-redirect" title="Musical interval">interval form</a> consists of a <i>key note, whole step, half step, whole step, whole step, half step, whole step, whole step.</i> That means that, in A aeolian (or A minor), you would play A, move up a whole step (two piano keys) to B, move up a half step (one piano key) to C, then up a whole step to D, a whole step to E, a half step to F, a whole step to G, and a final whole step to a high A.\n' +
+      'The <b>Aeolian mode</b> is a <a href="https://en.wikipedia.org/wiki/Mode_(music)" title="Mode (music)">musical mode</a> or, in modern usage, a <a href="https://en.wikipedia.org/wiki/Diatonic_scale" title="Diatonic scale">diatonic scale</a> also called the <a href="https://en.wikipedia.org/wiki/Natural_minor_scale" class="mw-redirect" title="Natural minor scale">natural minor scale</a>. On the white piano keys, it is the scale that starts with A. Its ascending <a href="https://en.wikipedia.org/wiki/Musical_interval" class="mw-redirect" title="Musical interval">interval form</a> consists of a <i>key note, whole step, half step, whole step, whole step, half step, whole step, whole step.</i> That means that, in A aeolian (or A minor), you would play A, move up a whole step (two piano keys) to B, move up a half step (one piano key) to C, then up a whole step to D, a whole step to E, a half step to F, a whole step to G, and a final whole step to a high A.\n' +
       "</p>",
   },
   "Dorian mode": {
@@ -93,6 +94,14 @@ const SCALES = {
     startKey: "C",
     description:
       "The Locrian mode is the seventh mode of the major scale, featuring a lowered second, third, fifth, sixth, and seventh degree compared to the Ionian mode (H-W-W-H-W-W-W), resulting in a highly dissonant and unstable sound rarely used in traditional tonal music but sometimes employed in avant-garde and experimental compositions for its tense and unresolved quality.",
+  },
+  "Hungarian minor scale": {
+    intervals: parseInterval("W-H-A2-H-H-A2-H"),
+    startNote: "C",
+    startKey: "Eb",
+    description:
+      '<p>The <b>Hungarian minor scale</b>, <b>double harmonic minor scale</b>, or <b>Gypsy minor scale</b>is a type of combined <a href="https://en.wikipedia.org/wiki/Musical_scale" class="mw-redirect" title="Musical scale">musical scale</a>. It is the fourth <a href="https://en.wikipedia.org/wiki/Mode_(music)" title="Mode (music)">mode</a> of the <a href="https://en.wikipedia.org/wiki/Double_harmonic_scale" title="Double harmonic scale">double harmonic scale</a>. It is the same as the <a href="https://en.wikipedia.org/wiki/Harmonic_minor_scale" title="Harmonic minor scale">harmonic minor scale</a>, except that it has a raised fourth <a href="https://en.wikipedia.org/wiki/Scale_degree" class="mw-redirect" title="Scale degree">scale degree</a>to introduce an additional <a href="https://en.wikipedia.org/wiki/Steps_and_skips" title="Steps and skips">gap</a>, or augmented second. It is a symmetrical scale with a slightly ambiguous tonal centre, due to the many half steps.\n' +
+      "</p>",
   },
 };
 
@@ -137,7 +146,7 @@ const NOTES_NEXT = {
   "D##": ["E#", "E##", "F#"],
 
   Ebb: ["Eb", "Fb", "F"],
-  Eb: ["Fb", "F", "Gb"],
+  Eb: ["Fb", "F", "F#"],
   E: ["F", "F#", "F##"],
   "E#": ["F#", "F##", "G#"],
   "E##": ["F##", "G#", "A"],
@@ -155,7 +164,7 @@ const NOTES_NEXT = {
   "G##": ["A#", "B", "C"],
 
   Abb: ["Bbb", "Bb", "B"],
-  Ab: ["Bbb", "Bb", "Cb"],
+  Ab: ["Bbb", "Bb", "B"],
   A: ["Bb", "B", "B#"],
   "A#": ["B", "B#", "C#"],
   "A##": ["C", "C#", "D"],
@@ -211,7 +220,7 @@ class Explorer {
 
     const relativeIndex = ALL_KEYS[startKey].int_val + index;
     const key = getKey(relativeIndex);
-    const firstNote = safeArrayAccess(ALL_KEYS_ARRAY, relativeIndex);
+    const firstNote = safeArrayAccess(ALL_KEYS_ARRAY, index + ALL_KEYS[startNote].root_index);
 
     musicSheetDiv.innerHTML = "";
     const renderer = new Renderer(musicSheetDiv, Renderer.Backends.SVG);
