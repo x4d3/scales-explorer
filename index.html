@@ -12,6 +12,7 @@
       }
 
       .music-sheet {
+        margin-bottom: 10px;
         background-color: #eed;
         padding: 10px;
         border: 10px solid #ddc;
@@ -27,6 +28,10 @@
       select {
         width: 100%;
       }
+
+      button {
+        width: 100%;
+      }
     </style>
     <script src="vexflow@4.2.3.js"></script>
     <script src="main.js"></script>
@@ -38,6 +43,7 @@
     <main>
       <select id="scales-selector"></select>
       <div class="music-sheet" id="music-sheet"></div>
+      <button id="randomise">Pick Random 🎲</button>
       <div id="description"></div>
     </main>
     <footer>

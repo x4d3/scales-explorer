@@ -1,10 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
+  const randomizeButton = document.getElementById("randomise");
   const scalesSelector = document.getElementById("scales-selector");
   const musicSheetDiv = document.getElementById("music-sheet");
   const descriptionDiv = document.getElementById("description");
   const urlParams = new URLSearchParams(window.location.search);
   const index = parseIntOrDefault(urlParams.get("index"), 0);
-  const scale = urlParams.get("scale") || Object.keys(SCALES)[0];
+  const scale = urlParams.get("scale") || SCALES_ARRAY[0];
 
   const explorer = new Explorer(musicSheetDiv, scalesSelector, descriptionDiv, scale, index);
   document.onkeydown = function (e) {
@@ -20,6 +21,9 @@ document.addEventListener("DOMContentLoaded", function () {
       default:
         return; // exit this handler for other keys
     }
+  };
+  randomizeButton.onclick = () => {
+    explorer.randomize();
   };
 
   explorer.onParamsChange((index, scale) => {
@@ -38,6 +42,16 @@ const INTERVAL_TYPES = {
   W: 2,
   H: 1,
 };
+
+const INTERVALS_TYPES_INVERSE = Object.entries(INTERVAL_TYPES).reduce((acc, [key, value]) => {
+  acc[value] = key;
+  return acc;
+}, {});
+
+const intervalsToString = (intervals) => {
+  return intervals.map((i) => INTERVALS_TYPES_INVERSE[i]).join(" - ");
+};
+
 const parseInterval = (s) => {
   return s.split("-").map((c) => INTERVAL_TYPES[c]);
 };
@@ -56,7 +70,6 @@ const SCALES = {
     startNote: "C",
     startKey: "Eb",
     description:
-      "<p>\n" +
       'The <b>Aeolian mode</b> is a <a href="https://en.wikipedia.org/wiki/Mode_(music)" title="Mode (music)">musical mode</a> or, in modern usage, a <a href="https://en.wikipedia.org/wiki/Diatonic_scale" title="Diatonic scale">diatonic scale</a> also called the <a href="https://en.wikipedia.org/wiki/Natural_minor_scale" class="mw-redirect" title="Natural minor scale">natural minor scale</a>. On the white piano keys, it is the scale that starts with A. Its ascending <a href="https://en.wikipedia.org/wiki/Musical_interval" class="mw-redirect" title="Musical interval">interval form</a> consists of a <i>key note, whole step, half step, whole step, whole step, half step, whole step, whole step.</i> That means that, in A aeolian (or A minor), you would play A, move up a whole step (two piano keys) to B, move up a half step (one piano key) to C, then up a whole step to D, a whole step to E, a half step to F, a whole step to G, and a final whole step to a high A.\n' +
       "</p>",
   },
@@ -65,7 +78,7 @@ const SCALES = {
     startNote: "D",
     startKey: "C",
     description:
-      "Commonly used in many famous tracks, it’s also a music mode popular in film scores, creating soundtracks that both sound massive and intriguing.",
+      'The Dorian mode (also called "Russian minor" by Balakirev) is a strictly <a href="/wiki/Diatonic_scale">diatonic scale</a> corresponding to the white keys of the piano from D to D.',
   },
   "Phrygian mode": {
     intervals: parseInterval("H-W-W-W-H-W-W"),
@@ -100,20 +113,28 @@ const SCALES = {
     startNote: "C",
     startKey: "Eb",
     description:
-      '<p>The <b>Hungarian minor scale</b>, <b>double harmonic minor scale</b>, or <b>Gypsy minor scale</b>is a type of combined <a href="https://en.wikipedia.org/wiki/Musical_scale" class="mw-redirect" title="Musical scale">musical scale</a>. It is the fourth <a href="https://en.wikipedia.org/wiki/Mode_(music)" title="Mode (music)">mode</a> of the <a href="https://en.wikipedia.org/wiki/Double_harmonic_scale" title="Double harmonic scale">double harmonic scale</a>. It is the same as the <a href="https://en.wikipedia.org/wiki/Harmonic_minor_scale" title="Harmonic minor scale">harmonic minor scale</a>, except that it has a raised fourth <a href="https://en.wikipedia.org/wiki/Scale_degree" class="mw-redirect" title="Scale degree">scale degree</a>to introduce an additional <a href="https://en.wikipedia.org/wiki/Steps_and_skips" title="Steps and skips">gap</a>, or augmented second. It is a symmetrical scale with a slightly ambiguous tonal centre, due to the many half steps.\n' +
-      "</p>",
+      'The <b>Hungarian minor scale</b>, <b>double harmonic minor scale</b>, or <b>Gypsy minor scale</b>is a type of combined <a href="https://en.wikipedia.org/wiki/Musical_scale" class="mw-redirect" title="Musical scale">musical scale</a>. It is the fourth <a href="https://en.wikipedia.org/wiki/Mode_(music)" title="Mode (music)">mode</a> of the <a href="https://en.wikipedia.org/wiki/Double_harmonic_scale" title="Double harmonic scale">double harmonic scale</a>. It is the same as the <a href="https://en.wikipedia.org/wiki/Harmonic_minor_scale" title="Harmonic minor scale">harmonic minor scale</a>, except that it has a raised fourth <a href="https://en.wikipedia.org/wiki/Scale_degree" class="mw-redirect" title="Scale degree">scale degree</a>to introduce an additional <a href="https://en.wikipedia.org/wiki/Steps_and_skips" title="Steps and skips">gap</a>, or augmented second. It is a symmetrical scale with a slightly ambiguous tonal centre, due to the many half steps.',
+  },
+  "Spanish/Jewish Scale": {
+    intervals: parseInterval("H-A2-H-W-H-W-W"),
+    startNote: "G",
+    startKey: "C",
+    description:
+      'The Spanish/Jewish Scale or <b>Phrygian dominant scale</b> is the fifth <a href="/wiki/Musical_mode" class="mw-redirect" title="Musical mode">mode</a> of the <a href="/wiki/Minor_scale#Harmonic_and_melodic_minor" title="Minor scale">harmonic minor scale</a>, the fifth being the <a href="/wiki/Dominant_(music)" title="Dominant (music)">dominant</a>.<sup id="cite_ref-Hunter_1-0" class="reference"><a href="#cite_note-Hunter-1">[1]</a></sup> Also called the <b>altered Phrygian scale</b>, <b>dominant flat 2 flat 6</b> (in jazz), or <b>Freygish scale</b> (also spelled Fraigish<sup id="cite_ref-W&amp;F_2-0" class="reference"><a href="#cite_note-W&amp;F-2">[2]</a></sup>). It resembles the <a href="/wiki/Phrygian_mode" title="Phrygian mode">Phrygian mode</a> but with a <a href="/wiki/Major_third" title="Major third">major third</a>, rather than a <a href="/wiki/Minor_third" title="Minor third">minor third</a>.',
+    url: "https://en.wikipedia.org/wiki/Phrygian_dominant_scale",
   },
 };
-
+const SCALES_ARRAY = Object.keys(SCALES);
 const ALL_KEYS = {
   C: { root_index: 0, int_val: 0, accidentals: [] },
   Db: {
     root_index: 1,
     int_val: 1,
     accidentals: ["Bb", "Eb", "Ab", "Db", "Gb"],
+    equivalent: "C#",
   },
   D: { root_index: 1, int_val: 2, accidentals: ["F#", "C#"] },
-  Eb: { root_index: 2, int_val: 3, accidentals: ["Bb", "Eb", "Ab"] },
+  Eb: { root_index: 2, int_val: 3, accidentals: ["Bb", "Eb", "Ab"], equivalent: "D#" },
   E: { root_index: 2, int_val: 4, accidentals: ["F#", "C#", "G#", "D#"] },
   F: { root_index: 3, int_val: 5, accidentals: ["Bb"] },
   "F#": {
@@ -122,9 +143,9 @@ const ALL_KEYS = {
     accidentals: ["F#", "C#", "G#", "D#", "A#", "E#"],
   },
   G: { root_index: 4, int_val: 7, accidentals: ["F#"] },
-  Ab: { root_index: 5, int_val: 8, accidentals: ["Bb", "Eb", "Ab", "Db"] },
+  Ab: { root_index: 5, int_val: 8, accidentals: ["Bb", "Eb", "Ab", "Db"], equivalent: "G#" },
   A: { root_index: 5, int_val: 9, accidentals: ["F#", "C#", "G#"] },
-  Bb: { root_index: 6, int_val: 10, accidentals: ["Bb", "Eb"] },
+  Bb: { root_index: 6, int_val: 10, accidentals: ["Bb", "Eb"], equivalent: "A#" },
   B: {
     root_index: 6,
     int_val: 11,
@@ -177,10 +198,15 @@ const NOTES_NEXT = {
 
 const ALL_KEYS_ARRAY = Object.keys(ALL_KEYS);
 
+const isFlat = (note) => note.slice(1, 2) === "b";
+
+const isSharp = (note) => note.slice(1, 2) === "#";
+
 class Explorer {
   constructor(musicSheetDiv, scalesSelector, descriptionDiv, scale, index) {
     this.musicSheetDiv = musicSheetDiv;
     this.descriptionDiv = descriptionDiv;
+    this.scalesSelector = scalesSelector;
     this.index = index;
     this.scale = scale;
     this.changeParamsListeners = [];
@@ -197,6 +223,13 @@ class Explorer {
     };
     scalesSelector.value = scale;
     this.refresh();
+  }
+
+  randomize() {
+    this.index = Math.floor(Math.random() * 24) - 12;
+    this.scale = SCALES_ARRAY[Math.floor(Math.random() * SCALES_ARRAY.length)];
+    this.scalesSelector.value = this.scale;
+    this.fireParamChanged();
   }
 
   updateIndex(increment) {
@@ -220,7 +253,13 @@ class Explorer {
 
     const relativeIndex = ALL_KEYS[startKey].int_val + index;
     const key = getKey(relativeIndex);
-    const firstNote = safeArrayAccess(ALL_KEYS_ARRAY, index + ALL_KEYS[startNote].root_index);
+    const { accidentals } = ALL_KEYS[key];
+    let firstNote = safeArrayAccess(ALL_KEYS_ARRAY, index + ALL_KEYS[startNote].int_val);
+    const octave = 4 + Math.floor((index - ALL_KEYS[firstNote].int_val) / 12);
+
+    if (isFlat(firstNote) && accidentals.some(isSharp)) {
+      firstNote = ALL_KEYS[firstNote].equivalent;
+    }
 
     musicSheetDiv.innerHTML = "";
     const renderer = new Renderer(musicSheetDiv, Renderer.Backends.SVG);
@@ -228,8 +267,6 @@ class Explorer {
     renderer.resize(600, 200);
     const stave = new Stave(10, 25, 600);
     stave.addClef("treble").addKeySignature(key).setContext(context).draw();
-    const { accidentals } = ALL_KEYS[key];
-    const octave = 3 + Math.floor((index - ALL_KEYS[firstNote].int_val) / 12);
     const notes = generatesScale(firstNote, intervals, accidentals, octave);
 
     const voice = new Voice({ num_beats: notes.length, beat_value: 4 });
@@ -241,30 +278,35 @@ class Explorer {
     // Render voice
     voice.draw(context, stave);
 
-    descriptionDiv.innerHTML = `<p>${firstNote} ${scale}</p><p>${description}</p>`;
+    descriptionDiv.innerHTML = `<h3>${intervalsToString(intervals)}</h3> ${description}`;
   };
 }
 
 const { Renderer, Stave, StaveNote, Accidental, Formatter, Voice } = Vex.Flow;
 
+function parseNote(note) {
+  return {
+    noteLetter: note.slice(0, 1),
+    accidental: note.slice(1),
+  };
+}
+
 const generatesScale = (firstNote, intervals, accidentals, octave) => {
   let note = firstNote;
   const notes = [];
   for (let i = 0; i < 15; i++) {
-    const noteLetter = note.slice(0, 1);
+    const { noteLetter, accidental } = parseNote(note);
     const staveNote = new StaveNote({
       keys: [`${noteLetter}/${octave}`],
       duration: "q",
     });
     if (!accidentals.includes(note)) {
-      if (note.slice(-2) === "##") {
-        staveNote.addModifier(new Accidental("##"));
-      } else if (note.slice(-1) === "#") {
-        staveNote.addModifier(new Accidental("#"));
-      } else if (note.slice(-2) === "bb") {
-        staveNote.addModifier(new Accidental("bb"));
-      } else if (note.slice(-1) === "b") {
-        staveNote.addModifier(new Accidental("b"));
+      if (accidental) {
+        staveNote.addModifier(new Accidental(accidental));
+      } else {
+        if (accidentals.includes(`${note}b`) || accidentals.includes(`${note}#`)) {
+          staveNote.addModifier(new Accidental("n"));
+        }
       }
     }
     notes.push(staveNote);
