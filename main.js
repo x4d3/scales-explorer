@@ -1,13 +1,15 @@
 document.addEventListener("DOMContentLoaded", function () {
   const randomizeButton = document.getElementById("randomise");
   const scalesSelector = document.getElementById("scales-selector");
+  const titleDiv = document.getElementById("title");
+
   const musicSheetDiv = document.getElementById("music-sheet");
   const descriptionDiv = document.getElementById("description");
   const urlParams = new URLSearchParams(window.location.search);
   const index = parseIntOrDefault(urlParams.get("index"), 0);
   const scale = urlParams.get("scale") || SCALES_ARRAY[0];
 
-  const explorer = new Explorer(musicSheetDiv, scalesSelector, descriptionDiv, scale, index);
+  const explorer = new Explorer(titleDiv, musicSheetDiv, scalesSelector, descriptionDiv, scale, index);
   document.onkeydown = function (e) {
     switch (e.key) {
       case "ArrowUp":
@@ -56,22 +58,47 @@ const parseInterval = (s) => {
   return s.split("-").map((c) => INTERVAL_TYPES[c]);
 };
 
+const formatNote = (note) => {
+  return note.replace("b", "♭").replace("#", "♯");
+};
+
 const SCALES = {
   "Major Scale / Ionian mode": {
+    shortcut: "MAJOR",
     intervals: MAJOR_INTERVALS,
     startNote: "C",
     startKey: "C",
     description:
-      '<p>The <b>major scale</b> (or <a href="https://en.wikipedia.org/wiki/Ionian_mode" title="Ionian mode">Ionian mode</a>) is one of the most commonly used <a href="https://en.wikipedia.org/wiki/Scale_(music)" title="Scale (music)">musical scales</a>, especially in <a href="https://en.wikipedia.org/wiki/Western_culture#Music" title="Western culture">Western music</a>. It is one of the <a href="https://en.wikipedia.org/wiki/Diatonic_scale" title="Diatonic scale">diatonic scales</a>. Like many musical scales, it is made up of seven <a href="https://en.wikipedia.org/wiki/Musical_note" title="Musical note">notes</a>: the eighth duplicates the first at double its <a href="https://en.wikipedia.org/wiki/Frequency" title="Frequency">frequency</a> so that it is called a higher <a href="https://en.wikipedia.org/wiki/Octave" title="Octave">octave</a> of the same note (from Latin "octavus", the eighth).\n' +
-      "</p>",
+      'The <b>major scale</b> (or <a href="https://en.wikipedia.org/wiki/Ionian_mode" title="Ionian mode">Ionian mode</a>) is one of the most commonly used <a href="https://en.wikipedia.org/wiki/Scale_(music)" title="Scale (music)">musical scales</a>, especially in <a href="https://en.wikipedia.org/wiki/Western_culture#Music" title="Western culture">Western music</a>. It is one of the <a href="https://en.wikipedia.org/wiki/Diatonic_scale" title="Diatonic scale">diatonic scales</a>. Like many musical scales, it is made up of seven <a href="https://en.wikipedia.org/wiki/Musical_note" title="Musical note">notes</a>: the eighth duplicates the first at double its <a href="https://en.wikipedia.org/wiki/Frequency" title="Frequency">frequency</a> so that it is called a higher <a href="https://en.wikipedia.org/wiki/Octave" title="Octave">octave</a> of the same note (from Latin "octavus", the eighth).',
+    url: "https://en.wikipedia.org/wiki/Major_scale",
   },
   "Natural Minor / Aeolian mode": {
+    shortcut: "Nat MINOR",
     intervals: MINOR_INTERVALS,
     startNote: "C",
     startKey: "Eb",
     description:
       'The <b>Aeolian mode</b> is a <a href="https://en.wikipedia.org/wiki/Mode_(music)" title="Mode (music)">musical mode</a> or, in modern usage, a <a href="https://en.wikipedia.org/wiki/Diatonic_scale" title="Diatonic scale">diatonic scale</a> also called the <a href="https://en.wikipedia.org/wiki/Natural_minor_scale" class="mw-redirect" title="Natural minor scale">natural minor scale</a>. On the white piano keys, it is the scale that starts with A. Its ascending <a href="https://en.wikipedia.org/wiki/Musical_interval" class="mw-redirect" title="Musical interval">interval form</a> consists of a <i>key note, whole step, half step, whole step, whole step, half step, whole step, whole step.</i> That means that, in A aeolian (or A minor), you would play A, move up a whole step (two piano keys) to B, move up a half step (one piano key) to C, then up a whole step to D, a whole step to E, a half step to F, a whole step to G, and a final whole step to a high A.\n' +
       "</p>",
+    url: "https://en.wikipedia.org/wiki/Minor_scale#Natural_minor_scale",
+  },
+  "Harmonic Minor Scale": {
+    shortcut: "Harm MINOR",
+    intervals: parseInterval("W-H-W-W-H-A2-H"),
+    startNote: "C",
+    startKey: "Eb",
+    description:
+      "The harmonic minor scale (or Aeolian ♯7 scale) has the same notes as the natural minor scale except that the seventh degree is raised by one semitone, creating an augmented second between the sixth and seventh degrees.",
+    url: "https://en.wikipedia.org/wiki/Minor_scale#Harmonic_minor_scale",
+  },
+  "Ascending Melodic Minor Scale / Jazz minor scale": {
+    shortcut: "Mel MINOR",
+    intervals: parseInterval("W-H-W-W-W-W-H"),
+    startNote: "C",
+    startKey: "Eb",
+    description:
+      "The jazz minor scale or ascending melodic minor scale is a derivative of the melodic minor scale, except only the ascending form of the scale is used. As the name implies, it is primarily used in jazz, although it may be found in other types of music as well. It may be derived from the major scale with a minor third, making it a synthetic scale, and features a dominant seventh chord on the fifth degree (V) like the harmonic minor scale. It can also be derived from the diatonic Dorian mode with a major seventh.",
+    url: "https://en.wikipedia.org/wiki/Jazz_minor_scale",
   },
   "Dorian mode": {
     intervals: parseInterval("W-H-W-W-W-H-W"),
@@ -79,6 +106,7 @@ const SCALES = {
     startKey: "C",
     description:
       'The Dorian mode (also called "Russian minor" by Balakirev) is a strictly <a href="/wiki/Diatonic_scale">diatonic scale</a> corresponding to the white keys of the piano from D to D.',
+    url: "https://en.wikipedia.org/wiki/Dorian_mode#Modern_Dorian_mode",
   },
   "Phrygian mode": {
     intervals: parseInterval("H-W-W-W-H-W-W"),
@@ -86,6 +114,7 @@ const SCALES = {
     startKey: "C",
     description:
       "The Phrygian mode is a musical scale derived from the natural minor scale, with a lowered second scale degree. In terms of intervals, the Phrygian mode features a minor second (m2), minor third (m3), perfect fourth (P4), perfect fifth (P5), minor sixth (m6), and minor seventh (m7). Its characteristic lowered second degree (root, minor second) gives it a distinctively exotic and somewhat dissonant quality, making it a popular choice for creating tension and adding color in various musical compositions across genres.",
+    url: "https://en.wikipedia.org/wiki/Phrygian_mode#Modern_Phrygian_mode",
   },
   "Lydian mode": {
     intervals: parseInterval("W-W-W-H-W-W-H"),
@@ -93,6 +122,7 @@ const SCALES = {
     startKey: "C",
     description:
       "The Lydian mode is the fourth mode of the major scale. It’s a bright and happy mode that’s used in many famous songs.",
+    url: "https://en.wikipedia.org/wiki/Lydian_mode",
   },
   "Mixolydian mode": {
     intervals: parseInterval("W-W-H-W-W-H-W"),
@@ -203,7 +233,8 @@ const isFlat = (note) => note.slice(1, 2) === "b";
 const isSharp = (note) => note.slice(1, 2) === "#";
 
 class Explorer {
-  constructor(musicSheetDiv, scalesSelector, descriptionDiv, scale, index) {
+  constructor(titleDiv, musicSheetDiv, scalesSelector, descriptionDiv, scale, index) {
+    this.titleDiv = titleDiv;
     this.musicSheetDiv = musicSheetDiv;
     this.descriptionDiv = descriptionDiv;
     this.scalesSelector = scalesSelector;
@@ -248,8 +279,8 @@ class Explorer {
   }
 
   refresh = () => {
-    const { musicSheetDiv, descriptionDiv, index, scale } = this;
-    const { startNote, intervals, startKey, description } = SCALES[scale];
+    const { titleDiv, musicSheetDiv, descriptionDiv, index, scale, url } = this;
+    const { shortcut, startNote, intervals, startKey, description } = SCALES[scale];
 
     const relativeIndex = ALL_KEYS[startKey].int_val + index;
     const key = getKey(relativeIndex);
@@ -278,7 +309,8 @@ class Explorer {
     // Render voice
     voice.draw(context, stave);
 
-    descriptionDiv.innerHTML = `<h3>${intervalsToString(intervals)}</h3> ${description}`;
+    titleDiv.innerHTML = `${formatNote(firstNote)} ${shortcut || ""}`;
+    descriptionDiv.innerHTML = `<h3>${intervalsToString(intervals)}</h3> ${description} <a href="${url}" >Learn more</a>`;
   };
 }
 
