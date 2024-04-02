@@ -131,6 +131,7 @@ const SCALES = {
     startKey: "C",
     description:
       "The Mixolydian mode is the fifth mode of the major scale, featuring a lowered seventh degree compared to the Ionian mode (W-W-H-W-W-H-W), resulting in a major sound with a bluesy and relaxed feel commonly heard in rock, blues, and jazz improvisation.",
+    url: "https://en.wikipedia.org/wiki/Mixolydian_mode",
   },
   "Locrian mode": {
     intervals: parseInterval("H-W-W-H-W-W-W"),
@@ -138,6 +139,7 @@ const SCALES = {
     startKey: "C",
     description:
       "The Locrian mode is the seventh mode of the major scale, featuring a lowered second, third, fifth, sixth, and seventh degree compared to the Ionian mode (H-W-W-H-W-W-W), resulting in a highly dissonant and unstable sound rarely used in traditional tonal music but sometimes employed in avant-garde and experimental compositions for its tense and unresolved quality.",
+    url: "https://en.wikipedia.org/wiki/Locrian_mode",
   },
   "Hungarian minor scale": {
     intervals: parseInterval("W-H-A2-H-H-A2-H"),
@@ -145,6 +147,7 @@ const SCALES = {
     startKey: "Eb",
     description:
       'The <b>Hungarian minor scale</b>, <b>double harmonic minor scale</b>, or <b>Gypsy minor scale</b>is a type of combined <a href="https://en.wikipedia.org/wiki/Musical_scale" class="mw-redirect" title="Musical scale">musical scale</a>. It is the fourth <a href="https://en.wikipedia.org/wiki/Mode_(music)" title="Mode (music)">mode</a> of the <a href="https://en.wikipedia.org/wiki/Double_harmonic_scale" title="Double harmonic scale">double harmonic scale</a>. It is the same as the <a href="https://en.wikipedia.org/wiki/Harmonic_minor_scale" title="Harmonic minor scale">harmonic minor scale</a>, except that it has a raised fourth <a href="https://en.wikipedia.org/wiki/Scale_degree" class="mw-redirect" title="Scale degree">scale degree</a>to introduce an additional <a href="https://en.wikipedia.org/wiki/Steps_and_skips" title="Steps and skips">gap</a>, or augmented second. It is a symmetrical scale with a slightly ambiguous tonal centre, due to the many half steps.',
+    url: "https://en.wikipedia.org/wiki/Hungarian_minor_scale",
   },
   "Spanish/Jewish Scale": {
     intervals: parseInterval("H-A2-H-W-H-W-W"),
@@ -280,8 +283,8 @@ class Explorer {
   }
 
   refresh = () => {
-    const { titleDiv, musicSheetDiv, descriptionDiv, index, scale, url } = this;
-    const { shortcut, startNote, intervals, startKey, description } = SCALES[scale];
+    const { titleDiv, musicSheetDiv, descriptionDiv, index, scale } = this;
+    const { shortcut, startNote, intervals, startKey, description, url } = SCALES[scale];
 
     const relativeIndex = ALL_KEYS[startKey].int_val + index;
     const key = getKey(relativeIndex);
@@ -311,7 +314,7 @@ class Explorer {
     voice.draw(context, stave);
 
     titleDiv.innerHTML = `${formatNote(firstNote)} ${shortcut || ""}`;
-    descriptionDiv.innerHTML = `<h3>${intervalsToString(intervals)}</h3> ${description} <a href="${url}" >Learn more</a>`;
+    descriptionDiv.innerHTML = `<h3>${intervalsToString(intervals)}</h3> ${description} <p></p><a href="${url}" >Learn more</a></p>`;
   };
 }
 
