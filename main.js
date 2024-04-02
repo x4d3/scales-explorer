@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const descriptionDiv = document.getElementById("description");
   const urlParams = new URLSearchParams(window.location.search);
   const index = parseIntOrDefault(urlParams.get("index"), 0);
-  const scale = urlParams.get("scale") || SCALES_ARRAY[0];
+  const scaleIndex = parseIntOrDefault(urlParams.get("scale"), 0);
+  const scale = SCALES_ARRAY[scaleIndex];
 
   const explorer = new Explorer(titleDiv, musicSheetDiv, scalesSelector, descriptionDiv, scale, index);
   document.onkeydown = function (e) {
@@ -31,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
   explorer.onParamsChange((index, scale) => {
     const urlParams = new URLSearchParams(window.location.search);
     urlParams.set("index", index);
-    urlParams.set("scale", scale);
+    urlParams.set("scale", SCALES_ARRAY.indexOf(scale));
     window.history.replaceState({}, "", `${window.location.pathname}?${urlParams}`);
   });
 });
@@ -368,9 +369,11 @@ const fillSelector = function (selector, elements) {
 };
 
 const parseIntOrDefault = (value, defaultValue) => {
-  if (value) {
+  if (value && isNumber(value)) {
     return parseInt(value);
   } else {
     return defaultValue;
   }
 };
+
+const isNumber = (value) => !isNaN(value);
