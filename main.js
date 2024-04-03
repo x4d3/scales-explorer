@@ -303,22 +303,14 @@ class Explorer {
     const stave = new Stave(10, 25, 600);
     stave.addClef("treble").addKeySignature(key).setContext(context).draw();
     const notes = generatesScale(firstNote, intervals, accidentals, octave);
+    Formatter.FormatAndDraw(context, stave, notes);
 
-    const voice = new Voice({ num_beats: notes.length, beat_value: 4 });
-    voice.addTickables(notes);
-
-    // Format and justify the notes to 400 pixels.
-    new Formatter().joinVoices([voice]).format([voice], 480);
-
-    // Render voice
-    voice.draw(context, stave);
-
-    titleDiv.innerHTML = `${formatNote(firstNote)} ${shortcut || ""}`;
+    titleDiv.innerHTML = shortcut ? `${formatNote(firstNote)} ${shortcut}` : "";
     descriptionDiv.innerHTML = `<h3>${intervalsToString(intervals)}</h3> ${description} <p></p><a href="${url}" >Learn more</a></p>`;
   };
 }
 
-const { Renderer, Stave, StaveNote, Accidental, Formatter, Voice } = Vex.Flow;
+const { Renderer, Stave, Stem, StaveNote, Accidental, Formatter, Voice } = Vex.Flow;
 
 function parseNote(note) {
   return {
@@ -334,7 +326,7 @@ const generatesScale = (firstNote, intervals, accidentals, octave) => {
     const { noteLetter, accidental } = parseNote(note);
     const staveNote = new StaveNote({
       keys: [`${noteLetter}/${octave}`],
-      duration: "q",
+      duration: "w",
     });
     if (!accidentals.includes(note)) {
       if (accidental) {
