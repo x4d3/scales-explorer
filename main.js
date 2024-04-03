@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   const randomizeButton = document.getElementById("randomise");
   const scalesSelector = document.getElementById("scales-selector");
-  const titleDiv = document.getElementById("title");
 
   const musicSheetDiv = document.getElementById("music-sheet");
   const descriptionDiv = document.getElementById("description");
@@ -10,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const scaleIndex = parseIntOrDefault(urlParams.get("scale"), 0);
   const scale = SCALES_ARRAY[scaleIndex];
 
-  const explorer = new Explorer(titleDiv, musicSheetDiv, scalesSelector, descriptionDiv, scale, index);
+  const explorer = new Explorer(musicSheetDiv, scalesSelector, descriptionDiv, scale, index);
   document.onkeydown = function (e) {
     switch (e.key) {
       case "ArrowUp":
@@ -237,8 +236,7 @@ const isFlat = (note) => note.slice(1, 2) === "b";
 const isSharp = (note) => note.slice(1, 2) === "#";
 
 class Explorer {
-  constructor(titleDiv, musicSheetDiv, scalesSelector, descriptionDiv, scale, index) {
-    this.titleDiv = titleDiv;
+  constructor(musicSheetDiv, scalesSelector, descriptionDiv, scale, index) {
     this.musicSheetDiv = musicSheetDiv;
     this.descriptionDiv = descriptionDiv;
     this.scalesSelector = scalesSelector;
@@ -300,12 +298,17 @@ class Explorer {
     const renderer = new Renderer(musicSheetDiv, Renderer.Backends.SVG);
     const context = renderer.getContext();
     renderer.resize(600, 200);
-    const stave = new Stave(10, 25, 600);
+    const stave = new Stave(0, 25, 600);
     stave.addClef("treble").addKeySignature(key).setContext(context).draw();
     const notes = generatesScale(firstNote, intervals, accidentals, octave);
     Formatter.FormatAndDraw(context, stave, notes);
 
-    titleDiv.innerHTML = shortcut ? `${formatNote(firstNote)} ${shortcut}` : "";
+    if (shortcut) {
+      const title = document.createElement("div");
+      title.innerHTML = `${formatNote(firstNote)} ${shortcut}`;
+      title.style.position = "absolute";
+      musicSheetDiv.insertBefore(title, musicSheetDiv.firstChild);
+    }
     descriptionDiv.innerHTML = `<h3>${intervalsToString(intervals)}</h3> ${description} <p></p><a href="${url}" >Learn more</a></p>`;
   };
 }
