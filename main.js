@@ -281,7 +281,7 @@ class Explorer {
   }
 
   refresh = () => {
-    const { titleDiv, musicSheetDiv, descriptionDiv, index, scale } = this;
+    const { musicSheetDiv, descriptionDiv, index, scale } = this;
     const { shortcut, startNote, intervals, startKey, description, url } = SCALES[scale];
 
     const relativeIndex = ALL_KEYS[startKey].int_val + index;
